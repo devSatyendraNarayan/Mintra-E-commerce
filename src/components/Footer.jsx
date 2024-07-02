@@ -18,7 +18,7 @@ function Footer() {
   </nav>
  
   <aside className='pb-11'>
-    <p>Copyright © {new Date().getFullYear()} - All right reserved by XYZ Ltd.</p>
+    <p>Copyright © {new Date().getFullYear()} - All right reserved by <span className='font-semibold'>Satyendra Narayan Saw</span>.</p>
   </aside>
 </footer>
    </>

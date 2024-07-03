@@ -51,10 +51,7 @@ function Account() {
             <div className="w-full h-px bg-gray-300 mb-5"></div>
             <SidebarSection
               title="ORDERS"
-              
-              links={[
-                { to: "/orders-returns", label: "Orders & Returns" },
-              ]}
+              links={[{ to: "/orders-returns", label: "Orders & Returns" }]}
             />
             <SidebarSection
               title="CREDITS"
@@ -127,7 +124,7 @@ function Account() {
                   <input
                     type="text"
                     placeholder="Satyendra"
-                    className="input input-bordered placeholder:text-gray-800 rounded-sm bg-white text-gray-800 w-full"
+                    className="input input-bordered  rounded-sm bg-white text-gray-800 w-full"
                     readOnly
                   />
                 </label>
@@ -172,7 +169,7 @@ function Account() {
                 {/* Alternate Mobile Details */}
                 <label className="form-control">
                   <span className="label-text font-semibold text-gray-800 block">
-                    Alternate mobile details
+                    Mobile Number
                   </span>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-gray-500">
@@ -185,21 +182,19 @@ function Account() {
                     />
                   </div>
                 </label>
-  {/* Save Address */}
+                {/* Save Address */}
                 <label className="form-control">
                   <span className="label-text font-semibold text-gray-800 block">
-                    Saved Address
+                    Address
                   </span>
-                  <div className="relative">
-                   
+                  <div className="">
                     <input
                       type="text"
-                      placeholder="Enter Address"
+                      placeholder="Full address*"
                       className="input input-bordered placeholder:text-gray-800 rounded-sm bg-white text-gray-800  w-full"
                     />
                   </div>
                 </label>
-
 
                 {/* Save Details Button */}
                 <button className="btn my-5 rounded-sm bg-rose-500 hover:bg-rose-600 text-white border-none w-full py-3">

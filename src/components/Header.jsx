@@ -10,6 +10,10 @@ import { CartContext } from "../contexts/CartContext";
 import { signOut } from "firebase/auth";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { doc, getDoc } from "firebase/firestore";
+// Import auth from your Firebase configuration file
+import { auth, db } from "../contexts/Firebase"; // Adjust the path as needed
+
 const Header = ({
   className = "",
   textColor = "text-white",
@@ -19,6 +23,7 @@ const Header = ({
   showCart = true,
   showMenu = true,
 }) => {
+  const [userDetails, setUserDetails] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -26,8 +31,31 @@ const Header = ({
   const { wishlist } = useContext(WishlistContext);
   const { cart } = useContext(CartContext);
   const { user, setUser } = useContext(AuthContext);
- 
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      setUser(user);
+      if (user) {
+        try {
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setUserDetails(docSnap.data());
+          } else {
+            console.log("No such document!");
+          }
+        } catch (error) {
+          console.error("Error fetching user details:", error);
+        }
+      } else {
+        setUserDetails(null); // Clear user details if no user is logged in
+      }
+    });
   
+    return () => unsubscribe(); // Cleanup the subscription on unmount
+  }, []);
+  
+
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
     setIsMenuOpen(false);
@@ -55,19 +83,16 @@ const Header = ({
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await signOut(auth); // Ensure auth is imported correctly
       setUser(null);
+      setUserDetails(null);
       setIsDropdownOpen(false);
       toast.success("Logout successful!");
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Error logging out. Please try again.");
     }
-    setUser(null);
-    setIsDropdownOpen(false);
   };
-  
-  
 
   const renderLogo = () => (
     <Link to="/" className="top-2 left-4 sm:left-6">
@@ -125,11 +150,17 @@ const Header = ({
             aria-orientation="vertical"
             aria-labelledby="user-menu"
           >
-            <div className="flex flex-col justify-start px-4 py-2 text-sm text-gray-700">
-              <p className="font-semibold">
-                Hello <span>Name</span>
-              </p>
-              <span>123456789</span>
+            <div className="flex flex-col justify-start px-2 py-2 text-sm text-gray-700">
+              {userDetails ? (
+                <>
+                  <p className="font-semibold">
+                    Hello <span>{userDetails.name.split(" ")[0]}</span>
+                  </p>
+                  <span className="text-xs text-gray-600">{userDetails.email}</span>
+                </>
+              ) : (
+                <p>Hello User</p>
+              )}
             </div>
             <div className=" w-full h-[1px] bg-gray-200 my-1"></div>
 
@@ -181,8 +212,8 @@ const Header = ({
             <div className=" w-full h-[1px] bg-gray-200 my-1"></div>
 
             <div>
-              <Link to='/account'
-                href="#"
+              <Link
+                to="/account"
                 className="block px-4 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 role="menuitem"
               >
@@ -233,11 +264,11 @@ const Header = ({
     <nav
       className={`${className} px-5 fixed w-full z-50 top-0 left-0 shadow-lg`}
     >
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="relative flex items-center h-16">
           {renderLogo()}
           {renderCategories()}
-          <div className="flex items-center  right-0 absolute">
+          <div className="flex items-center right-0 absolute">
             <div className="flex space-x-5 items-center">
               {showWishlist &&
                 renderIconWithBadge(GrFavorite, "/wishlist", wishlist.length)}
@@ -254,3 +285,4 @@ const Header = ({
 };
 
 export default Header;
+

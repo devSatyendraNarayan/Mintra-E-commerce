@@ -3,7 +3,7 @@ import { FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../contexts/Firebase";
 import { AuthContext } from "../contexts/AuthContext"; // Import AuthContext
 import { toast } from "react-toastify";
@@ -38,7 +38,8 @@ function LoginModal() {
     modal[action]();
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data, e) => {
+    e.preventDefault();
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -58,6 +59,19 @@ function LoginModal() {
       console.error("Login error:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const email = prompt("Please enter your email address:");
+    if (email) {
+      try {
+        await sendPasswordResetEmail(auth, email);
+        toast.success("Password reset email sent!");
+      } catch (error) {
+        toast.error("Error sending password reset email. Please try again.");
+        console.error("Password reset error:", error);
+      }
     }
   };
 
@@ -85,7 +99,12 @@ function LoginModal() {
           showPassword={showPassword}
           togglePassword={() => setShowPassword(!showPassword)}
         />
-        <span className="text-blue-500 cursor-pointer">Forgot Password</span>
+        <span
+          className="text-blue-500 cursor-pointer"
+          onClick={handleForgotPassword}
+        >
+          Forgot Password
+        </span>
         <SubmitButton loading={loading} />
       </form>
       <ToggleRegister setShowLogin={setShowLogin} />
@@ -95,10 +114,10 @@ function LoginModal() {
 
   return (
     <>
-      <button  onClick={() => toggleModal("showModal")}>
-        <FaUser className="text-[#eb2540] " />
+      <button onClick={() => toggleModal("showModal")}>
+        <FaUser className="text-[#eb2540]" />
       </button>
-      <dialog id="my_modal_3" className="modal  text-gray-800">
+      <dialog id="my_modal_3" className="modal text-gray-800">
         <div className="modal-box min-w-fit bg-white">
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"

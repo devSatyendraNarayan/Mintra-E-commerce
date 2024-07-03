@@ -7,7 +7,8 @@ import {
   createUserWithEmailAndPassword,
   fetchSignInMethodsForEmail,
 } from "firebase/auth";
-import { auth } from "../contexts/Firebase";
+import { auth,db } from "../contexts/Firebase";
+import {setDoc,doc} from "firebase/firestore"
 import { AuthContext } from "../contexts/AuthContext"; // Import AuthContext
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -38,7 +39,8 @@ function RegisterModal({ setShowLogin }) {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data,e) => {
+    e.preventDefault();
     setLoading(true);
     try {
       const signInMethods = await fetchSignInMethodsForEmail(auth, data.email);
@@ -55,7 +57,13 @@ function RegisterModal({ setShowLogin }) {
         data.password
       );
       const firebaseUser = userCredential.user;
-
+if(firebaseUser)
+  {
+    await setDoc(doc(db, "users", firebaseUser.uid), {
+      name: data.name,
+      email: data.email,
+    });
+  }
       
 
       // Set authenticated user in AuthContext

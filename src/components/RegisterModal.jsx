@@ -65,12 +65,17 @@ function RegisterModal({ setShowLogin }) {
       setShowLogin(true);
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error(
-        error.code === "auth/email-already-in-use"
-          ? "Email is already registered."
-          : `Error: ${error.message}`
-      );
-    } finally {
+      let errorMessage = "An error occurred during registration.";
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "Email is already registered.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address.";
+      } else if (error.code === "auth/weak-password") {
+        errorMessage = "Password is too weak.";
+      }
+      
+      toast.error(errorMessage);
+    }  finally {
       setLoading(false);
     }
   };

@@ -38,25 +38,9 @@ function ProductCard({ product }) {
     return wishlist.some((item) => item.id === productId);
   };
 
-  const handleOpenProductInNewTab = (product) => {
-    const newWindow = window.open(`/product/${product.id}`, "_blank");
-    if (newWindow) {
-      newWindow.onload = () => {
-        newWindow.document.title = product.title;
-      };
-    }
-  };
-
   return (
-    <div
-      className="bg-white rounded-lg overflow-hidden shadow-lg relative"
-      onClick={() => handleOpenProductInNewTab(product)}
-    >
-      <Link
-        to={`/product/${product.id}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+    <div className="bg-white rounded-lg overflow-hidden shadow-lg relative">
+      <Link to={`/product/${product.id}`}>
         <img
           src={product.image}
           alt={product.title}

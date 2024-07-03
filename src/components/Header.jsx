@@ -7,7 +7,9 @@ import LoginModal from "./LoginModal";
 import { AuthContext } from "../contexts/AuthContext";
 import { WishlistContext } from "../contexts/WishlistContext";
 import { CartContext } from "../contexts/CartContext";
-
+import { signOut } from "firebase/auth";
+import { ToastContainer, toast, Bounce } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Header = ({
   className = "",
   textColor = "text-white",
@@ -24,7 +26,8 @@ const Header = ({
   const { wishlist } = useContext(WishlistContext);
   const { cart } = useContext(CartContext);
   const { user, setUser } = useContext(AuthContext);
-
+ 
+  
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
     setIsMenuOpen(false);
@@ -50,10 +53,21 @@ const Header = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      setIsDropdownOpen(false);
+      toast.success("Logout successful!");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Error logging out. Please try again.");
+    }
     setUser(null);
     setIsDropdownOpen(false);
   };
+  
+  
 
   const renderLogo = () => (
     <Link to="/" className="top-2 left-4 sm:left-6">
@@ -167,13 +181,13 @@ const Header = ({
             <div className=" w-full h-[1px] bg-gray-200 my-1"></div>
 
             <div>
-              <a
+              <Link to='/account'
                 href="#"
                 className="block px-4 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 role="menuitem"
               >
                 Edit Profile
-              </a>
+              </Link>
               <a
                 onClick={handleLogout}
                 className="block w-full text-left py-1 px-4 text-sm text-gray-700 hover:bg-rose-100"

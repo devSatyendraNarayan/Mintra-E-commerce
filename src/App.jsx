@@ -42,13 +42,11 @@ const App = () => {
 
   return (
     <Router>
-      <Header/>
       <div className="flex flex-col min-h-screen">
-        
         <main className="flex-grow">
           <Routes>{routes}</Routes>
         </main>
-       
+
         <ToastContainer
           position="top-center"
           autoClose={3000}
@@ -63,8 +61,7 @@ const App = () => {
           transition:Bounce
           className="z-[9999]"
         />
-        
-        
+
         <Footer />
       </div>
     </Router>
@@ -72,4 +69,3 @@ const App = () => {
 };
 
 export default App;
-

@@ -5,6 +5,7 @@ const Breadcrumbs = () => {
   const location = useLocation();
   const match = useRouteMatch();
 
+  
   // Split the pathname into segments
   const pathSegments = location.pathname.split('/').filter(segment => segment !== '');
 

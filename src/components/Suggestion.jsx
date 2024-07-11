@@ -6,27 +6,31 @@ import { CartContext } from "../contexts/CartContext";
 import ProductCard from "./ProductCard";
 
 function Suggestion() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("men"); // Default active tab to "men"
   const { id } = useParams(); // Access id from route params
   const { products } = useContext(ProductContext);
   const { wishlist } = useContext(WishlistContext);
   const { cart } = useContext(CartContext);
 
   const filteredProducts = useMemo(() => {
-    let filtered = products;
-
-    if (activeTab !== "all") {
-      filtered = filtered.filter(
-        (product) => product.category.toLowerCase() === `${activeTab}'s clothing`
-      );
-    }
-
-    return filtered.filter(
-      (product) => 
-        product.id !== parseInt(id) &&  // Exclude the current product being viewed
+    let filtered = products.filter(
+      (product) =>
+        product.id !== parseInt(id) && // Exclude the current product being viewed
         !wishlist.some((wishlistItem) => wishlistItem.id === product.id) &&
         !cart.some((cartItem) => cartItem.id === product.id)
     );
+
+    if (activeTab === "men") {
+      filtered = filtered.filter(
+        (product) => product.category.toLowerCase() === "men's clothing"
+      );
+    } else if (activeTab === "women") {
+      filtered = filtered.filter(
+        (product) => product.category.toLowerCase() === "women's clothing"
+      );
+    }
+
+    return filtered;
   }, [activeTab, products, wishlist, cart, id]);
 
   return (
@@ -34,13 +38,6 @@ function Suggestion() {
       <div className="w-full h-[1px] bg-gray-800"></div>
       <p className="font-semibold tracking-wide my-3">You may also like:</p>
       <div role="tablist" className="tabs tabs-bordered">
-        <button
-          role="tab"
-          className={`tab text-gray-800 ${activeTab === "all" ? "tab-active" : ""}`}
-          onClick={() => setActiveTab("all")}
-        >
-          All
-        </button>
         <button
           role="tab"
           className={`tab text-gray-800 ${activeTab === "men" ? "tab-active" : ""}`}

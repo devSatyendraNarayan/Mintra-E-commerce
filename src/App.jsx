@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { ToastContainer, toast, Bounce } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import Home from "./Pages/Home";
 import Footer from "./components/Footer";
 import Account from "./components/Account";
@@ -12,16 +11,18 @@ import Wishlist from "./components/Wishlist";
 import About from "./Pages/About";
 import Contact from "./Pages/Contact";
 import Sitemap from "./Pages/Sitemap";
-
 import ProductDetail from "./Pages/ProductDetail";
-import Header from "./components/Header";
+import ErrorBoundary from "./contexts/ErrorBoundary"; // Adjust path as per your project structure
+import AddressPage from "./components/AddressPage";
+import ErrorPage from "./components/ErrorPage";
+import AddressListPage from "./components/AddressListPage";
+import OrderPlacedMessage from "./components/OrderPlacedMessage";
+import OrderedProducts from "./Pages/OrderedProducts";
 
 const routeConfig = [
   { path: "/", element: <Home /> },
   { path: "/account", element: <Account /> },
-
   { path: "/product/:id", element: <ProductDetail /> },
-
   { path: "/men-category", element: <MenPage /> },
   { path: "/women-category", element: <WomenPage /> },
   { path: "/about-us", element: <About /> },
@@ -29,6 +30,11 @@ const routeConfig = [
   { path: "/site-map", element: <Sitemap /> },
   { path: "/wishlist", element: <Wishlist /> },
   { path: "/bag", element: <CartItem /> },
+  { path: "/address", element: <AddressListPage /> },
+  { path: "/error", element: <ErrorPage /> },
+  { path: "/order-placed", element: <OrderPlacedMessage /> },
+  { path: "/orderedProducts", element: <OrderedProducts /> },
+ 
 ];
 
 const App = () => {
@@ -44,23 +50,13 @@ const App = () => {
     <Router>
       <div className="flex flex-col min-h-screen">
         <main className="flex-grow">
-          <Routes>{routes}</Routes>
+          <ErrorBoundary>
+            
+            <Routes>{routes}</Routes>
+          </ErrorBoundary>
         </main>
 
-        <ToastContainer
-          position="top-center"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          transition:Bounce
-          className="z-[9999]"
-        />
+        
 
         <Footer />
       </div>

@@ -2,24 +2,13 @@ import React, { useContext, useState, useEffect } from "react";
 import Header from "./Header";
 import { CartContext } from "../contexts/CartContext";
 import { WishlistContext } from "../contexts/WishlistContext";
-import Modal from "./Modal";
-import { FaAngleRight, FaPlus, FaMinus } from "react-icons/fa";
+import Announcement from "./Announcement";
+import PriceDetails from "./PriceDetails";
+import { formatPrice } from "../utils/Helpers";
+import { FaPlus, FaMinus, FaAngleRight } from "react-icons/fa";
 import Suggestion from "./Suggestion";
 import { TbBadge } from "react-icons/tb";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
-import CartHeader from "./CartHeader";
-
-// Helper function to format price in Indian Rupees
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(price);
-};
 
 function QuantitySelector({ productId, quantity, onChange }) {
   const handleDecrease = () => {
@@ -68,25 +57,24 @@ function QuantitySelector({ productId, quantity, onChange }) {
 }
 
 function CartItem() {
-  const { cart, setCart, removeFromCart } = useContext(CartContext);
+  const { cart, removeFromCart, updateQuantity, placeOrder } = useContext(CartContext);
   const { wishlist, addToWishlist } = useContext(WishlistContext);
-  const [selectedItems, setSelectedItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [Finaltotal, setFinalTotal] = useState(0);
-  const [discount, setDiscount] = useState(100); // Example: Default discount
+  const [discount, setDiscount] = useState(100);
   const [shippingFee, setShippingFee] = useState(0);
+  const [checkoutStep, setCheckoutStep] = useState("cart");
 
-  const conversionRate = 83.36; // Conversion rate for USD to INR
-  const freeShippingThreshold = 2000; // Example: Threshold for free shipping in INR
+  const conversionRate = 83.36;
+  const freeShippingThreshold = 2000;
 
   useEffect(() => {
     const calculateTotal = () => {
-      const totalPrice =
-        selectedItems.reduce((sum, id) => {
-          const item = cart.find((product) => product.id === id);
-          return sum + (item ? item.price * (item.quantity || 1) : 0); // Ensure quantity is valid
-        }, 0) * conversionRate;
+      const totalPrice = cart.reduce((sum, product) => {
+        return sum + product.price * (product.quantity || 1) * conversionRate;
+      }, 0);
       setFinalTotal(totalPrice);
+
       const totalPriceWithDiscount = totalPrice - discount;
 
       const cartTotalInINR = totalPriceWithDiscount;
@@ -101,70 +89,53 @@ function CartItem() {
     };
 
     calculateTotal();
-  }, [cart, selectedItems, discount, shippingFee]);
+  }, [cart, discount, shippingFee]);
 
   const handleQuantityChange = (productId, newQuantity) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === productId ? { ...item, quantity: newQuantity } : item
-      )
-    );
-
-    if (selectedItems.includes(productId)) {
-      // Ensure that selectedItems is updated correctly
-      const updatedItems = selectedItems.map((id) =>
-        id === productId ? productId : id
-      );
-      setSelectedItems(updatedItems);
-    }
+    updateQuantity(productId, newQuantity);
   };
 
   const handleRemove = (productId) => {
     removeFromCart(productId);
-    setSelectedItems(selectedItems.filter((id) => id !== productId));
-    toast.info("Item removed from cart");
   };
 
   const handleMoveToWishlist = (product) => {
     addToWishlist(product);
     removeFromCart(product.id);
-    setSelectedItems(selectedItems.filter((id) => id !== product.id));
-    toast.success("Item moved to wishlist");
   };
 
-  const toggleSelectItem = (productId) => {
-    setSelectedItems((prevSelectedItems) =>
-      prevSelectedItems.includes(productId)
-        ? prevSelectedItems.filter((id) => id !== productId)
-        : [...prevSelectedItems, productId]
-    );
-  };
+  const handlePlaceOrder = () => {
+    const orderDetails = {
+      items: cart.map((product) => ({
+        id: product.id,
+        image:product.image,
+        title: product.title,
+        price: product.price*83.36,
+        quantity: product.quantity,
+      })),
+      total,
+      Finaltotal,
+      discount,
+      shippingFee,
+      createdAt: new Date(),
+    };
 
-  const handleBulkRemove = () => {
-    selectedItems.forEach(handleRemove);
-    setSelectedItems([]);
-  };
+    // Log each field to check for undefined values
+    console.log("Order Details:", orderDetails);
+    console.log("Items:", orderDetails.items);
+    console.log("Total:", orderDetails.total);
+    console.log("Finaltotal:", orderDetails.Finaltotal);
+    console.log("Discount:", orderDetails.discount);
+    console.log("Shipping Fee:", orderDetails.shippingFee);
+    console.log("Created At:", orderDetails.createdAt);
 
-  const handleBulkMoveToWishlist = () => {
-    selectedItems.forEach((id) => {
-      const product = cart.find((item) => item.id === id);
-      if (product) {
-        handleMoveToWishlist(product);
-      }
-    });
-    setSelectedItems([]);
-  };
-
-  const toggleAllItems = () => {
-    setSelectedItems(
-      cart.length === selectedItems.length ? [] : cart.map((item) => item.id)
-    );
+    placeOrder(orderDetails);
   };
 
   return (
     <>
       <Header
-        className="bg-white"
+        className="bg-white shadow-none border-b-2"
         textColor="text-gray-800"
         showCategories={false}
         showCart={false}
@@ -172,168 +143,115 @@ function CartItem() {
         showMenu={false}
         showUser={false}
       />
-
-      <div className="h-full mx-auto container flex flex-col items-center mt-20">
-        <CartHeader />
-
-        <div className="flex items-center justify-between w-[80vw]">
-          <label className="cursor-pointer label gap-5">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-accent"
-              checked={selectedItems.length === cart.length}
-              onChange={toggleAllItems}
-            />
-            <span className="label-text tracking-wide text-lg font-semibold text-gray-800">
-              {selectedItems.length}/{cart.length} ITEMS SELECTED
-            </span>
-          </label>
-          <div className="text-gray-400 flex gap-5">
-            <button onClick={handleBulkRemove}>REMOVE</button>
-            <div className="w-[2px] h-5 bg-gray-400"></div>
-            <button onClick={handleBulkMoveToWishlist}>MOVE TO WISHLIST</button>
-          </div>
-        </div>
-
-        <div className="w-[80vw] bg-white border border-gray-300 p-3 mx-5 my-5">
-          {cart.length > 0 ? (
-            cart.map((product) => {
-              const isInWishlist = wishlist.some(
-                (item) => item.id === product.id
-              );
-              return (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between py-2 border-b border-gray-200"
-                >
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-accent"
-                      checked={selectedItems.includes(product.id)}
-                      onChange={() => toggleSelectItem(product.id)}
-                    />
-                    <img
-                      src={product.image}
-                      alt={product.title}
-                      className="w-16 h-16 object-contain"
-                    />
-                    <div>
-                      <p className="text-gray-800 font-semibold">
-                        {product.title}
-                      </p>
-                      <QuantitySelector
-                        productId={product.id}
-                        quantity={product.quantity || 1}
-                        onChange={(newQuantity) =>
-                          handleQuantityChange(product.id, newQuantity)
-                        }
-                      />
-                      <p className="text-gray-700 mt-1">
-                        Total:{" "}
-                        {formatPrice(
-                          product.price *
-                            conversionRate *
-                            (product.quantity || 1)
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-xs text-red-500 font-semibold"
-                      onClick={() => handleRemove(product.id)}
-                    >
-                      REMOVE
-                    </button>
-                    {!isInWishlist && (
-                      <>
-                        <div className="w-px h-4 bg-gray-400"></div>
-                        <button
-                          className="text-xs text-gray-600 font-semibold"
-                          onClick={() => handleMoveToWishlist(product)}
-                        >
-                          MOVE TO WISHLIST
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="flex items-center justify-center py-8">
-              <p className="text-gray-800 uppercase font-semibold tracking-wide">
-                Your cart is empty.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {selectedItems.length > 0 && (
+      <Announcement
+        message="Payday Party Ends In"
+        deadline={new Date("2024-07-20T00:00:00")}
+        messageWhenExpired="The party has ended. Thank you for joining us!"
+      />
+      <div className="h-full mx-auto container flex flex-col items-center mt-5">
+        {checkoutStep === "cart" && (
           <>
             <div className="w-[80vw] bg-white border border-gray-300 p-3 mx-5 my-5">
-              <p className="text-lg tracking-wide font-semibold text-gray-800">
-                PRICE DETAILS ({selectedItems.length} item
-                {selectedItems.length > 1 ? "s" : ""})
-              </p>
-              <div className="flex justify-between py-2">
-                <p className="text-gray-800">Total MRP</p>
-                <p className="text-gray-800">{formatPrice(Finaltotal)}</p>
-              </div>
-              <div className="flex justify-between py-2">
-                <p className="text-gray-800">Discount on MRP</p>
-                <p className="text-gray-800">{formatPrice(discount)}</p>
-              </div>
-              <div className="flex justify-between py-2">
-                <p className="text-gray-800">Coupon Discount</p>
-                <button className="text-blue-500">Apply Coupon</button>
-              </div>
-              <div className="flex justify-between py-2">
-                <p className="text-gray-800">Platform Fee</p>
-                <p className="text-gray-800">FREE</p>
-              </div>
-              <div className="flex justify-between py-2">
-                <div className="flex ">
-                  <p className="text-gray-800">Shipping Fee</p>
-                  {total < 2000 && (
-                    <div
-                      className="badge badge-secondary badge-xs tooltip"
-                      data-tip="Free shipping for orders over ₹2000"
-                    >
-                     
+              {cart.length > 0 ? (
+                cart.map((product) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between py-2 border-b border-gray-200"
+                  >
+                    <div className="flex items-center space-x-5">
+                      <img
+                        src={product.image}
+                        alt={product.title}
+                        className="w-16 h-16 object-contain"
+                      />
+                      <div className="flex flex-col justify-start">
+                        <p className="text-gray-800 font-semibold">
+                          {product.title}
+                        </p>
+                        <QuantitySelector
+                          productId={product.id}
+                          quantity={product.quantity || 1}
+                          onChange={(newQuantity) =>
+                            handleQuantityChange(product.id, newQuantity)
+                          }
+                        />
+                        <p className="text-gray-700 mt-1">
+                          Total:{" "}
+                          {formatPrice(
+                            product.price *
+                              conversionRate *
+                              (product.quantity || 1)
+                          )}
+                        </p>
+                      </div>
                     </div>
-                  )}
+
+                    <div></div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-xs text-red-500 font-semibold"
+                        onClick={() => handleRemove(product.id)}
+                      >
+                        REMOVE
+                      </button>
+                      {!wishlist.some((item) => item.id === product.id) && (
+                        <>
+                          <div className="w-px h-4 bg-gray-400"></div>
+                          <button
+                            className="text-xs text-gray-600 font-semibold"
+                            onClick={() => handleMoveToWishlist(product)}
+                          >
+                            MOVE TO WISHLIST
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <p className="text-gray-800 uppercase font-semibold tracking-wide">
+                    Your cart is empty.
+                  </p>
                 </div>
-
-                <p className="text-gray-800">{formatPrice(shippingFee)}</p>
-              </div>
-              <div className="flex justify-between py-2 font-semibold">
-                <p className="text-gray-800">Total Amount</p>
-                <p className="text-gray-800">{formatPrice(total)}</p>
-              </div>
+              )}
             </div>
 
-            <div className="w-[80vw] flex justify-end mt-4">
-              <button className="btn btn-primary">PLACE ORDER</button>
-            </div>
+            {cart.length > 0 && (
+              <>
+                <PriceDetails
+                  cart={cart}
+                  Finaltotal={Finaltotal}
+                  discount={discount}
+                  shippingFee={shippingFee}
+                  total={total}
+                />
+                <div className="w-[80vw] flex justify-end mt-4">
+                  <button
+                    className="btn btn-primary"
+                    onClick={handlePlaceOrder}
+                  >
+                    PLACE ORDER
+                  </button>
+                </div>
+              </>
+            )}
+
+            <Link
+              to="/wishlist"
+              className="btn w-[80vw] btn-ghost cursor-pointer h-fit tracking-wide text-gray-800 font-semibold flex flex-row items-center justify-between bg-white border border-gray-300 p-3 mx-5 my-5"
+            >
+              <div className="flex items-center gap-2">
+                <TbBadge className="text-xl" />
+                <p>Add More From Wishlist</p>
+              </div>
+              <FaAngleRight className="text-xl" />
+            </Link>
+
+            <Suggestion />
           </>
         )}
-
-        <Link
-          to="/wishlist"
-          className="btn w-[80vw] btn-ghost cursor-pointer h-fit tracking-wide text-gray-800 font-semibold flex flex-row items-center justify-between bg-white border border-gray-300 p-3 mx-5 my-5"
-        >
-          <div className="flex items-center gap-2">
-            <TbBadge className="text-xl" />
-            <p>Add More From Wishlist</p>
-          </div>
-          <FaAngleRight className="text-xl" />
-        </Link>
-
-        <Suggestion />
       </div>
-      <ToastContainer />
     </>
   );
 }

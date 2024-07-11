@@ -156,7 +156,7 @@ const Header = ({
                   <p className="font-semibold">
                     Hello <span>{userDetails.name.split(" ")[0]}</span>
                   </p>
-                  <span className="text-xs text-gray-600">{userDetails.email}</span>
+                  <span className="text-xs text-gray-600 truncate">{userDetails.email}</span>
                 </>
               ) : (
                 <p>Hello User</p>
@@ -165,13 +165,13 @@ const Header = ({
             <div className=" w-full h-[1px] bg-gray-200 my-1"></div>
 
             <div>
-              <a
-                href="#"
+              <Link
+                to='/orderedProducts'
                 className="block px-4 py-1 text-sm text-gray-700 hover:bg-gray-100"
                 role="menuitem"
               >
                 Orders
-              </a>
+              </Link>
               <a
                 className="block w-full py-1 text-left px-4 text-sm text-gray-700 hover:bg-gray-100"
                 role="menuitem"

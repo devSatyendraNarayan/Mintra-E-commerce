@@ -3,8 +3,6 @@ import { WishlistContext } from "../contexts/WishlistContext";
 import { CartContext } from "../contexts/CartContext";
 import { Link } from "react-router-dom";
 import { FaTrash, FaShoppingCart } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Header from "./Header";
 
 function Wishlist() {
@@ -23,15 +21,11 @@ function Wishlist() {
 
   const handleRemoveFromWishlist = (productId) => {
     removeFromWishlist(productId);
-    toast.info("Item removed from wishlist");
   };
 
   const handleAddToCart = (product) => {
     addToCart(product);
     removeFromWishlist(product.id);
-    toast.success(`Added ${product.title} to cart`, {
-      position: "top-center",
-    });
   };
 
   const uniqueWishlist = wishlist.filter(
@@ -41,22 +35,25 @@ function Wishlist() {
 
   return (
     <>
-      <Header className="bg-white" textColor="text-gray-800" showCategories={true} />
+      <Header
+        className="bg-white"
+        textColor="text-gray-800"
+        showCategories={true}
+      />
       <div className="container h-full mt-12 mx-auto px-4 py-8">
-        <ToastContainer />
         <p className="text-2xl font-bold mb-8 text-gray-800">My Wishlist</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {uniqueWishlist.length > 0 ? (
             uniqueWishlist.map((product) => (
               <div
                 key={product.id}
-                className="relative bg-white rounded-lg overflow-hidden shadow-lg"
+                className="relative bg-white rounded-lg overflow-hidden shadow-lg transition-shadow hover:shadow-2xl"
               >
                 <Link to={`/product/${product.id}`}>
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="w-full h-48 object-contain"
+                    className="w-full h-48 object-contain transition-opacity hover:opacity-90"
                   />
                 </Link>
                 <div className="p-4">
@@ -71,15 +68,15 @@ function Wishlist() {
                   <h3 className="text-sm font-semibold text-gray-800 truncate">
                     {product.title}
                   </h3>
-                  <p className="text-sm font-bold mt-2 mb-4 badge badge-secondary badge-outline">
+                  <p className="text-sm font-bold mt-2 mb-4 text-rose-500">
                     {formatPriceInINR(product.price)}
                   </p>
                   <div className="flex justify-center">
                     <button
                       onClick={() => handleAddToCart(product)}
-                      className="btn btn-sm btn-primary"
+                      className="btn btn-sm btn-primary flex items-center gap-2"
                     >
-                      <FaShoppingCart className="h-5 w-5 mr-2" />
+                      <FaShoppingCart className="h-5 w-5" />
                       Add to Cart
                     </button>
                   </div>

@@ -2,8 +2,6 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { WishlistContext } from "../contexts/WishlistContext";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 function ProductCard({ product }) {
   const { addToWishlist, removeFromWishlist, wishlist } =
@@ -23,14 +21,8 @@ function ProductCard({ product }) {
     event.stopPropagation(); // Stop event propagation to prevent card click
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
-      toast.info(`Removed ${product.title} from wishlist`, {
-        position: "top-center",
-      });
     } else {
       addToWishlist(product);
-      toast.success(`Added ${product.title} to wishlist`, {
-        position: "top-center",
-      });
     }
   };
 
@@ -39,17 +31,17 @@ function ProductCard({ product }) {
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-lg relative">
+    <div className="relative bg-white rounded-lg overflow-hidden shadow-lg transition-shadow hover:shadow-2xl">
       <Link to={`/product/${product.id}`}>
         <img
           src={product.image}
           alt={product.title}
-          className="w-full h-48 object-contain"
+          className="w-full h-48 object-contain transition-opacity hover:opacity-90"
         />
       </Link>
       <button
         onClick={(event) => handleAddToWishlist(event, product)}
-        className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md"
+        className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md transition-transform hover:rotate-12 hover:bg-rose-100"
       >
         {isInWishlist(product.id) ? (
           <FaHeart className="h-5 w-5 text-red-500" />
@@ -57,11 +49,11 @@ function ProductCard({ product }) {
           <FaRegHeart className="h-5 w-5 text-gray-600" />
         )}
       </button>
-      <div className="p-4">
+      <div className="p-4 transition-transform hover:translate-y-1">
         <h3 className="text-sm font-semibold text-gray-800 truncate">
           {product.title}
         </h3>
-        <p className="text-sm font-bold mt-2 inline-block badge badge-secondary badge-outline">
+        <p className="text-sm font-bold mt-2 text-rose-500">
           {formatPriceInINR(product.price)}
         </p>
       </div>

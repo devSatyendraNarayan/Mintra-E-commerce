@@ -76,13 +76,14 @@ function LoginModal() {
   };
 
   const renderLoginForm = () => (
-    <div className="flex flex-col mt-6 items-center justify-around">
+    <div className="flex flex-col mt-6  items-center ">
       <img
         src="https://cdn-icons-png.flaticon.com/128/3670/3670333.png"
         alt="Mintra-logo"
         className="w-14 h-14 mb-10"
       />
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 w-full">
+      <form onSubmit={handleSubmit(onSubmit)} >
+        <div className="space-y-5  w-full">
         <InputField
           type="email"
           placeholder="Email"
@@ -99,8 +100,10 @@ function LoginModal() {
           showPassword={showPassword}
           togglePassword={() => setShowPassword(!showPassword)}
         />
+        </div>
+        
         <span
-          className="text-blue-500 cursor-pointer"
+          className="text-blue-500 cursor-pointer text-sm"
           onClick={handleForgotPassword}
         >
           Forgot Password
@@ -117,8 +120,8 @@ function LoginModal() {
       <button onClick={() => toggleModal("showModal")}>
         <FaUser className="text-[#eb2540]" />
       </button>
-      <dialog id="my_modal_3" className="modal text-gray-800">
-        <div className="modal-box min-w-fit bg-white">
+      <dialog id="my_modal_3" className="modal  text-gray-800">
+        <div className="modal-box w-fit bg-white">
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
             onClick={() => toggleModal("close")}
@@ -162,7 +165,7 @@ const InputField = ({
 const SubmitButton = ({ loading }) => (
   <button
     type="submit"
-    className="btn duration-500 w-full text-rose-500 text-lg tracking-wide hover:bg-rose-500 border-none shadow-xl rounded-full bg-white hover:text-white transition-all"
+    className="btn duration-500 w-full mt-5 text-rose-500 text-lg tracking-wide hover:bg-rose-500 border-none shadow-xl rounded-full bg-white hover:text-white transition-all"
     disabled={loading}
   >
     {loading ? "Logging in..." : "LOGIN"}
@@ -170,7 +173,7 @@ const SubmitButton = ({ loading }) => (
 );
 
 const ToggleRegister = ({ setShowLogin }) => (
-  <div className="my-2">
+  <div className="my-2 text-xs">
     <p>
       Don't have an account?{" "}
       <span

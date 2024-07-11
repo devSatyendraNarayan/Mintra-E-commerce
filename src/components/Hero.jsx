@@ -68,7 +68,7 @@ function Hero() {
       }}
     >
       <div className="hero-overlay bg-opacity-50"></div>
-      <Header className="bg-transparent" textColor="text-gray-200" showCategories={true} />
+      <Header className=" bg-transparent shadow-none " textColor="text-gray-200" showCategories={true} />
       <ToastContainer />
       <div className="z-10 w-full absolute bottom-0 left-0 right-0 pb-8 px-10">
         <Slider {...settings}>

@@ -1,7 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 function ErrorPage() {
+  const handleReload = () => {
+    window.location.reload(); // Reloads the entire page
+  };
+
   return (
     <>
       <div className="flex h-screen flex-col bg-white">
@@ -21,12 +24,13 @@ function ErrorPage() {
               Try searching again, or return home to start from the beginning.
             </p>
 
-            <Link
-              to="/"
+            <a
+              
+              onClick={handleReload}
               className="mt-6 inline-block rounded bg-indigo-600 px-5 py-3 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring"
             >
-              Go Back Home
-            </Link>
+              Go Back 
+            </a>
           </div>
         </div>
       </div>

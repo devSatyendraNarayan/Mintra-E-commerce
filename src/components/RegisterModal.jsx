@@ -7,8 +7,8 @@ import {
   createUserWithEmailAndPassword,
   fetchSignInMethodsForEmail,
 } from "firebase/auth";
-import { auth,db } from "../contexts/Firebase";
-import {setDoc,doc} from "firebase/firestore"
+import { auth, db } from "../contexts/Firebase";
+import { setDoc, doc } from "firebase/firestore";
 import { AuthContext } from "../contexts/AuthContext"; // Import AuthContext
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,7 +39,7 @@ function RegisterModal({ setShowLogin }) {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = async (data,e) => {
+  const onSubmit = async (data, e) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -57,14 +57,12 @@ function RegisterModal({ setShowLogin }) {
         data.password
       );
       const firebaseUser = userCredential.user;
-if(firebaseUser)
-  {
-    await setDoc(doc(db, "users", firebaseUser.uid), {
-      name: data.name,
-      email: data.email,
-    });
-  }
-      
+      if (firebaseUser) {
+        await setDoc(doc(db, "users", firebaseUser.uid), {
+          name: data.name,
+          email: data.email,
+        });
+      }
 
       // Set authenticated user in AuthContext
       setUser(firebaseUser);
@@ -81,9 +79,9 @@ if(firebaseUser)
       } else if (error.code === "auth/weak-password") {
         errorMessage = "Password is too weak.";
       }
-      
+
       toast.error(errorMessage);
-    }  finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -181,7 +179,7 @@ const SubmitButton = ({ loading }) => (
 
 // Link to switch to login form
 const LoginLink = ({ setShowLogin }) => (
-  <div className="my-2 text-center">
+  <div className="my-2 text-center text-xs">
     <p>
       Already have an account?{" "}
       <span
